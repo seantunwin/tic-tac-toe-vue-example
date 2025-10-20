@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "semi": false,
+  "singleAttributePerLine": true,
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "vueIndentScriptAndStyle": true,
+  "overrides": [
+    {
+      "files": ["**/*.yml", "**/*{.css, .scss}", "**/*.html"],
+      "options": {
+        "singleQuote": false
+      }
+    }
+  ]
+}
