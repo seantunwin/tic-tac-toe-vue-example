@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import TicTacToe from './components/ticTacToe/TicTacToe.vue'
+  import TicTacToe from '@/components/ticTacToe/TicTacToe.vue'
 </script>
 
 <template>

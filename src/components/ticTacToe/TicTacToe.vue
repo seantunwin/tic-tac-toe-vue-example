@@ -1,9 +1,10 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue'
 
+  const dimensions = [3, 3] as const
   const p1 = { name: 'Player 1', token: 'X' }
   const p2 = { name: 'Player 2', token: 'O' }
-  const dimensions = [3, 3]
+  const cellTotal = dimensions[0] * dimensions[1]
   const winnerMatrix = [
     [[1], [1], [1]],
     [[2], [2], [2]],
@@ -21,7 +22,7 @@
     // [1, 2, 3]
   ]
   const currentPlayer = ref(p1)
-  const grid = ref<string[][]>([Array(3), Array(3), Array(3)])
+  const grid = ref<string[][]>([Array<string>(3), Array<string>(3), Array<string>(3)])
   const message = ref('')
   const hasWinner = ref(false)
   const winningSet = ref<number[][]>()
@@ -38,10 +39,9 @@
     }, [] as number[][])
   )
 
-  function cellClicked(rowIndex: number, cellIndex: number) {
-    if (!grid.value[rowIndex][cellIndex] && !hasWinner.value) {
-      grid.value[rowIndex][cellIndex] = currentPlayer.value.token
-      const cellTotal = dimensions[0] * dimensions[1]
+  function cellClicked(rowIndex = 0, cellIndex = 0) {
+    if (!grid.value[rowIndex]?.[cellIndex] && !hasWinner.value) {
+      grid.value[rowIndex]![cellIndex] = currentPlayer.value.token      
       const cellsPlayed = grid.value.flat()
       const isDraw = cellsPlayed.length === cellTotal
 
@@ -67,7 +67,7 @@
 
     winningSet.value = winnerMatrix.filter((matrix) =>
       matrix.every((row, rowIndex) =>
-        row.every((col) => playedMatrix.value[rowIndex].includes(col))
+        row.every((col) => playedMatrix.value?.[rowIndex]?.includes(col))
       )
     )[0]
 
@@ -75,9 +75,7 @@
   }
 
   function isWinningCell(rowIndex: number, columnIndex: number): boolean {
-    if (!winningSet.value) return false
-
-    return winningSet.value[rowIndex].includes(columnIndex + 1)
+    return winningSet.value?.[rowIndex]?.includes(columnIndex + 1) ?? false
   }
 
   function resetGrid() {
@@ -102,27 +100,27 @@
       >
         Reset
       </button>
-      <table>
+      <table cellspacing="0">
         <tr
-          :key="rIndex"
-          v-for="(row, rIndex) in dimensions[0]"
+        v-for="(row, rIndex) in dimensions[0]"
+        :key="rIndex"
         >
           <template
-            :key="cIndex"
-            v-for="(_column, cIndex) in dimensions[1]"
+          v-for="(_column, cIndex) in dimensions[1]"
+          :key="cIndex"
           >
             <td
               :class="[
                 'cell',
                 {
-                  filled: !!grid[rIndex][cIndex],
+                  filled: !!grid[rIndex]?.[cIndex],
                   winner: isWinningCell(rIndex, cIndex),
                 },
               ]"
               @click="cellClicked(rIndex, cIndex)"
               role="button"
             >
-              <span>{{ grid[rIndex][cIndex] }}</span>
+              <span>{{ grid[rIndex]?.[cIndex] ?? '' }}</span>
             </td>
           </template>
         </tr>
@@ -212,7 +210,9 @@
 
     & > :first-child {
       opacity: 0;
-      transition: opacity 0.35s ease-in-out;
+      transition: 
+        opacity 0.35s ease-in-out,
+        box-shadow 0.75s ease;
     }
 
     &.filled {
@@ -227,17 +227,12 @@
     }
 
     &.winner {
-      position: relative;
+      box-shadow: inset 0px 0px 2px 1px lightgreen;
     }
-    &.winner > :first-child {
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 1;
+    &.winner > :first-child {      
       display: inline-block;
       flex-basis: 100%;
       width: 100%;
-      flex-grow: 1;
       color: green;
       text-shadow:
         0px 0px 4px rgb(44, 168, 44),
@@ -246,7 +241,6 @@
         0 0 30px lightgreen,
         0 0 40px lightgreen,
         0 0 50px lightgreen;
-      box-shadow: inset 0px 0px 2px 1px lightgreen;
       scale: 1.125;
       transition:
         transform 0.5s ease,
@@ -255,7 +249,6 @@
         color 0.5s ease,
         text-shadow 0.5s ease,
         border-radius 0.5s ease;
-      /* transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); */
       background-color: var(--color-background);
       border-radius: 3%;
     }
